@@ -24,21 +24,6 @@ class Department:
     def add_employee(self, employee: Employee):
         self.employees.append(employee)
 
-    def total_hours_worked(self):
-        return sum(employee.hours_worked for employee in self.employees)
-
-    def total_payout(self):
-        return sum(employee.payout for employee in self.employees)
-
-    def report(self):
-        lines = [f"{self.name}"]
-        for employee in self.employees:
-            lines.append(
-                f"----------------  {employee.name:<18} {employee.hours_worked:<6}  {employee.hourly_rate:<5}  ${employee.payout:<6}")
-        lines.append(
-            f"                                     {self.total_hours_worked():<6}         ${self.total_payout():<6}")
-        return lines
-
 
 class CSVParser:
     def __init__(self, filename):
@@ -72,13 +57,6 @@ class Report:
     def all_reports(cls):
         return {subclass.name: subclass for subclass in cls.__subclasses__()}
 
-    def save(self, filename, data, output_format):
-        output_format.save(filename, data)
-
-
-class PayoutReport(Report):
-    name = 'payout'
-
     def __init__(self):
         self.departments = {}
 
@@ -86,6 +64,25 @@ class PayoutReport(Report):
         if employee.department not in self.departments:
             self.departments[employee.department] = Department(employee.department)
         self.departments[employee.department].add_employee(employee)
+
+    def save(self, filename, data, output_format):
+        output_format.save(filename, data)
+
+    def get_data(self):
+        raise NotImplementedError
+
+    def generate(self):
+        raise NotImplementedError
+
+
+class PayoutReport(Report):
+    name = 'payout'
+
+    def total_hours_worked(self, department):
+        return sum(employee.hours_worked for employee in department.employees)
+
+    def total_payout(self, department):
+        return sum(employee.payout for employee in department.employees)
 
     def get_data(self):
         return {
@@ -101,8 +98,8 @@ class PayoutReport(Report):
                     }
                     for employee in department.employees
                 ],
-                "total_hours_worked": department.total_hours_worked(),
-                "total_payout": department.total_payout()
+                "total_hours_worked": self.total_hours_worked(department),
+                "total_payout": self.total_payout(department)
             }
             for department in self.departments.values()
         }
@@ -110,7 +107,13 @@ class PayoutReport(Report):
     def generate(self):
         all_lines = ["                  name              hours   rate   payout"]
         for department in self.departments.values():
-            all_lines.extend(department.report())
+            lines = [f"{department.name}"]
+            for employee in department.employees:
+                lines.append(
+                    f"----------------  {employee.name:<18} {employee.hours_worked:<6}  {employee.hourly_rate:<5}  ${employee.payout:<6}")
+            lines.append(
+                f"                                     {self.total_hours_worked(department):<6}         ${self.total_payout(department):<6}")
+            all_lines.extend(lines)
         return "\n".join(all_lines)
 
 
