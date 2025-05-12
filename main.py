@@ -23,11 +23,18 @@ class Department:
     def add_employee(self, employee: Employee):
         self.employees.append(employee)
 
+    def total_hours_worked(self):
+        return sum(employee.hours_worked for employee in self.employees)
+
+    def total_payout(self):
+        return sum(employee.payout for employee in self.employees)
+
     def report(self):
         lines = [f"{self.name}"]
         for employee in self.employees:
             lines.append(
                 f"----------------  {employee.name:<18} {employee.hours_worked:<6}  {employee.hourly_rate:<5}  ${employee.payout:<6}")
+        lines.append(f"                                     {self.total_hours_worked():<6}         ${self.total_payout():<6}")
         return lines
 
 
