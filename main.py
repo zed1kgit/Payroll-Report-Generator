@@ -40,21 +40,26 @@ class Department:
 
 class CSVParser:
     def __init__(self, filename):
+        if not filename.endswith('.csv'):
+            raise ValueError('Файл должен быть в формате .csv')
         self.filename = filename
 
     def parse_employees(self):
         employees = []
-        with open(self.filename, 'r', encoding="utf-8") as csvfile:
-            header = csvfile.readline().strip().split(',')
-            for line in csvfile:
-                if not line.strip():
-                    continue
-                values = line.strip().split(',')
-                row_dict = dict(zip(header, values))
-                row_dict['emp_id'] = row_dict.pop('id')
-                rate_key = next(k for k in row_dict if k in ['hourly_rate', 'rate', 'salary'])
-                row_dict['hourly_rate'] = row_dict.pop(rate_key)
-                employees.append(Employee(**row_dict))
+        try:
+            with open(self.filename, 'r', encoding="utf-8") as csvfile:
+                header = csvfile.readline().strip().split(',')
+                for line in csvfile:
+                    if not line.strip():
+                        continue
+                    values = line.strip().split(',')
+                    row_dict = dict(zip(header, values))
+                    row_dict['emp_id'] = row_dict.pop('id')
+                    rate_key = next(k for k in row_dict if k in ['hourly_rate', 'rate', 'salary'])
+                    row_dict['hourly_rate'] = row_dict.pop(rate_key)
+                    employees.append(Employee(**row_dict))
+        except FileNotFoundError:
+            raise FileNotFoundError(f"Файл {self.filename} не найден.")
         return employees
 
 
