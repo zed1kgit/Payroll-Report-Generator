@@ -1,9 +1,11 @@
 class Employee:
-    def __init__(self, name, department, hours_worked, hourly_rate):
+    def __init__(self, emp_id, email, name, department, hours_worked, hourly_rate):
+        self.id = emp_id
+        self.email = email
         self.name = name
         self.department = department
-        self.hours_worked = hours_worked
-        self.hourly_rate = hourly_rate
+        self.hours_worked = int(hours_worked)
+        self.hourly_rate = int(hourly_rate)
 
     @property
     def payout(self):
@@ -30,15 +32,20 @@ class CSVParser:
     def __init__(self, filename):
         self.filename = filename
 
-    def parse(self):
-        data = []
+    def parse_employees(self):
+        employees = []
         with open(self.filename, 'r', encoding="utf-8") as csvfile:
-            header = csvfile.readline().split(',')
+            header = csvfile.readline().strip().split(',')
             for line in csvfile:
-                values = line.split(',')
+                if not line.strip():
+                    continue
+                values = line.strip().split(',')
                 row_dict = dict(zip(header, values))
-                data.append(row_dict)
-        return data
+                row_dict['emp_id'] = row_dict.pop('id')
+                rate_key = next(k for k in row_dict if k in ['hourly_rate', 'rate', 'salary'])
+                row_dict['hourly_rate'] = row_dict.pop(rate_key)
+                employees.append(Employee(**row_dict))
+        return employees
 
 
 class PayoutReport:
