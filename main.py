@@ -1,3 +1,6 @@
+import argparse
+
+
 class Employee:
     def __init__(self, emp_id, email, name, department, hours_worked, hourly_rate):
         self.id = emp_id
@@ -21,7 +24,7 @@ class Department:
         self.employees.append(employee)
 
     def report(self):
-        lines = ["                  name              hours   rate   payout\n", f"{self.name}\n"]
+        lines = [f"{self.name}"]
         for employee in self.employees:
             lines.append(
                 f"----------------  {employee.name:<18} {employee.hours_worked:<6}  {employee.hourly_rate:<5}  ${employee.payout:<6}")
@@ -50,7 +53,7 @@ class CSVParser:
 
 class PayoutReport:
     def __init__(self):
-        self.departments = []
+        self.departments = {}
 
     def add_employee(self, employee: Employee):
         if employee.department not in self.departments:
@@ -58,5 +61,28 @@ class PayoutReport:
         self.departments[employee.department].add_employee(employee)
 
     def generate(self):
-        reports = [department.report() for department in self.departments]
-        return "\n".join(reports)
+        all_lines = ["                  name              hours   rate   payout"]
+        for department in self.departments.values():
+            all_lines.extend(department.report())
+        return "\n".join(all_lines)
+
+
+def main():
+    parser = argparse.ArgumentParser(description="Скрипт подсчёта зарплаты сотрудников.")
+    parser.add_argument('files', type=str, nargs='+', help="CSV файлы с данными сотрудников")
+    parser.add_argument('--report', required=True, choices=['payout'], help="Тип отчета")
+    args = parser.parse_args()
+
+    report = PayoutReport()
+
+    for filename in args.files:
+        parser = CSVParser(filename)
+        employees = parser.parse_employees()
+        for employee in employees:
+            report.add_employee(employee)
+
+    print(report.generate())
+
+
+if __name__ == '__main__':
+    main()
