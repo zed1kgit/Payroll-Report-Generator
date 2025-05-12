@@ -142,7 +142,7 @@ class JSONFormat(OutputFormat):
             json.dump(data, file, ensure_ascii=False, indent=4)
 
 
-def main():
+def main():  # pragma: no cover
     reports = Report.all_reports()
 
     parser = argparse.ArgumentParser(description="Скрипт подсчёта зарплаты сотрудников.")
