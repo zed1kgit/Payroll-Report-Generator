@@ -63,7 +63,17 @@ class CSVParser:
         return employees
 
 
-class PayoutReport:
+class Report:
+    name: str = ""
+
+    @classmethod
+    def all_reports(cls):
+        return {subclass.name: subclass for subclass in cls.__subclasses__()}
+
+
+class PayoutReport(Report):
+    name = 'payout'
+
     def __init__(self):
         self.departments = {}
 
@@ -80,12 +90,15 @@ class PayoutReport:
 
 
 def main():
+    reports = Report.all_reports()
+
     parser = argparse.ArgumentParser(description="Скрипт подсчёта зарплаты сотрудников.")
     parser.add_argument('files', type=str, nargs='+', help="CSV файлы с данными сотрудников")
-    parser.add_argument('--report', required=True, choices=['payout'], help="Тип отчета")
+    parser.add_argument('--report', required=True, choices=list(reports.keys()), help="Тип отчета")
     args = parser.parse_args()
 
-    report = PayoutReport()
+    report_cls = reports.get(args.report)
+    report = report_cls()
 
     for filename in args.files:
         parser = CSVParser(filename)
