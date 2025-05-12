@@ -8,3 +8,19 @@ class Employee:
     @property
     def payout(self):
         return self.hourly_rate * self.hours_worked
+
+
+class Department:
+    def __init__(self, name):
+        self.name = name
+        self.employees = []
+
+    def add_employee(self, employee: Employee):
+        self.employees.append(employee)
+
+    def report(self):
+        lines = ["                  name              hours   rate   payout\n", f"{self.name}\n"]
+        for employee in self.employees:
+            lines.append(
+                f"----------------  {employee.name:<18} {employee.hours_worked:<6}  {employee.hourly_rate:<5}  ${employee.payout:<6}")
+        return lines
