@@ -125,7 +125,7 @@ class OutputFormat:
     def from_filename(cls, filename):
         ext = filename.rsplit('.', 1)[-1].lower()
         formats = cls.all_formats()
-        format_cls = formats[ext]
+        format_cls = formats.get(ext)
         if not format_cls:
             raise ValueError(f"Формат .{ext} не поддерживается. Поддерживаемые форматы: {', '.join(formats)}")
         return format_cls()
