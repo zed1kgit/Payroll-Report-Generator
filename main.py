@@ -24,3 +24,18 @@ class Department:
             lines.append(
                 f"----------------  {employee.name:<18} {employee.hours_worked:<6}  {employee.hourly_rate:<5}  ${employee.payout:<6}")
         return lines
+
+
+class CSVParser:
+    def __init__(self, filename):
+        self.filename = filename
+
+    def parse(self):
+        data = []
+        with open(self.filename, 'r', encoding="utf-8") as csvfile:
+            header = csvfile.readline().split(',')
+            for line in csvfile:
+                values = line.split(',')
+                row_dict = dict(zip(header, values))
+                data.append(row_dict)
+        return data
