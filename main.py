@@ -45,7 +45,7 @@ class PayoutReport:
     def __init__(self):
         self.departments = []
 
-    def add_department(self, employee: Employee):
+    def add_employee(self, employee: Employee):
         if employee.department not in self.departments:
             self.departments[employee.department] = Department(employee.department)
         self.departments[employee.department].add_employee(employee)
